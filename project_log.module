@@ -1,0 +1,18 @@
+<?php
+
+/**
+ * @file
+ * Project Log tracking module.
+ */
+
+/**
+ * Implements hook_views_api().
+ */
+function project_log_views_api() {
+  $path = drupal_get_path('module', 'project_log');
+  return array(
+    'api' => 3,
+    'path' => $path . '/views',
+    'template path' => $path . '/views',
+  );
+}
