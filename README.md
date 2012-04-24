@@ -63,15 +63,18 @@ To create a log, follow these steps:
 
 There are a variety of options for how you may theme/display this data,
 including Views, Panels, Panelizer, Display Suite, standard Drupal template
-theming techniques, etc. Discussing those is beyond the scope of this README,
-but for reference, here is how the author's site (http://www.lucubration.com/)
-works:
+theming techniques, etc. Discussing those is beyond the scope of this README.
+To get you started, and to keep the module generally accessible and easy to use,
+it defaults to providing three views that mimic how the author's site
+(http://www.lucubration.com/) works:
 
   1. A Latest News view shows a teaser-style rendering of the most recently
   published work entries, with a thumbnail for each.
 
   2. A Project Summary view provides a listing of all sections, in order,
-  with summary information for those sections
+  with summary information for those sections. This is done by hiding Drupal's
+  default display of the Sections field and using the Panels module to place
+  the view below the Project Log node body.
 
   3. A Project Section view displays the work entries for a section. This is
   managed with a view to give the administrator control over things like
