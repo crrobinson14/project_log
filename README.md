@@ -25,17 +25,17 @@ Installation
 This is not a Drupal.org project so you cannot use Drush to download it (sorry,
 read below for why). To get project_log for your site, do the following instead:
 
-  cd sites/all/modules
-  git clone git://github.com/crrobinson14/project_log.git
-  drush en project_log
+    cd sites/all/modules
+    git clone git://github.com/crrobinson14/project_log.git
+    drush en project_log
 
 If you do not have Git installed on your system, you can do this instead:
 
-  cd sites/all/modules
-  wget https://github.com/crrobinson14/project_log/zipball/master -O project_log.zip
-  unzip project_log.zip
-  rm project_log.zip
-  drush en project_log
+    cd sites/all/modules
+    wget https://github.com/crrobinson14/project_log/zipball/master -O project_log.zip
+    unzip project_log.zip
+    rm project_log.zip
+    drush en project_log
 
 If you do not have SSH access to the server you are installing the module on,
 just use the https://github.com/crrobinson14/project_log/zipball/master link
