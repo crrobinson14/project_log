@@ -33,6 +33,17 @@ If you do not have Git installed on your system, or you do not have SSH access
 to your server, you can use the "Zip" download link above and install it via
 FTP as you would any other Drupal module.
 
+Modules such as Node Reference Create are very helpful when working with project
+logs. To keep the dependencies minimal, this module does not require it, but if
+you have it installed you should visit:
+
+  /admin/structure/types/manage/project-log/fields
+  /admin/structure/types/manage/project-log-section/fields
+  /admin/structure/types/manage/project-log-work/fields
+
+and change the "Widget Type" for each "Autocomplete Text Field" node reference
+to "Autocomplete text field with create".
+
 Configuration
 -------------
 To create a log, follow these steps:
