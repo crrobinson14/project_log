@@ -3,6 +3,14 @@
 /**
  * @file
  * Install, update and uninstall functions for the Project Log module.
+ *
+ * Note that some calculated fields are stored as "real" fields (e.g.
+ * Task Status updates Section Status). We evaluated using views calculated
+ * fields here, but for those sites where you just don't want to use Views
+ * this gives you no other options, and equally important those calculated
+ * fields are very slow.
+ *
+ * An admin screen allows these calculated fields to be rebuilt if necessary.
  */
 
 /**
@@ -46,7 +54,6 @@ function project_log_install() {
 
   // Create all the instances for our fields.
   foreach (_project_log_installed_instances() as $name => $instance) {
-    $instance['field_name'] = $name;
     $instance['entity_type'] = 'node';
     field_create_instance($instance);
   }
@@ -107,8 +114,19 @@ function _project_log_installed_fields() {
       ),
     ),
 
-    // Project Log Tasks have status flags
-    'project_log_task_status' => array(
+    // Project Log Section entries have an estimated-time value.
+    'project_log_projected_hours' => array(
+      'cardinality' => 1,
+      'type' => 'number_float',
+      'settings' => array(
+        'default_widget' => 'number',
+      ),
+      'default_value' => array(array('value' => 0)),
+    ),
+
+    // Project Log Sections have status flags. These are usually modified while
+    // adding Project Log Work entries.
+    'project_log_status' => array(
       'cardinality' => 1,
       'type' => 'list_text',
       'settings' => array(
@@ -152,6 +170,7 @@ function _project_log_installed_fields() {
       'settings' => array(
         'default_widget' => 'number',
       ),
+      'default_value' => array(array('value' => 0)),
     ),
 
     // Project Log Work Entries may have one or more images attached.
@@ -169,40 +188,82 @@ function _project_log_installed_instances() {
   $t = get_t();
 
   return array(
-    'project_log_sections' => array(
+    // Project Log
+    array(
+      'field_name' => 'project_log_sections',
       'bundle' => 'project_log',
       'label' => $t('Sections'),
       'widget' => array('type' => 'node_reference_autocomplete'),
     ),
 
-    'project_log_tasks' => array(
+    // Project Log Section
+    array(
+      'field_name' => 'project_log_tasks',
       'bundle' => 'project_log_section',
       'label' => $t('Tasks'),
       'widget' => array('type' => 'node_reference_autocomplete'),
     ),
 
-    'project_log_task_status' => array(
+    array(
+      'field_name' => 'project_log_status',
+      'bundle' => 'project_log_section',
+      'label' => $t('Status'),
+    ),
+
+    array(
+      'field_name' => 'project_log_projected_hours',
+      'bundle' => 'project_log_section',
+      'label' => $t('Hours Estimate'),
+    ),
+
+    array(
+      'field_name' => 'project_log_work_hours',
+      'bundle' => 'project_log_section',
+      'label' => $t('Hours Spent'),
+    ),
+
+    array(
+      'field_name' => 'project_log_work_performed',
+      'bundle' => 'project_log_section',
+      'label' => $t('Latest Update: Date'),
+    ),
+
+    array(
+      'field_name' => 'project_log_work_task',
+      'bundle' => 'project_log_section',
+      'label' => $t('Latest Update: Node'),
+      'widget' => array('type' => 'node_reference_autocomplete'),
+    ),
+
+    // Project Log Task
+    array(
+      'field_name' => 'project_log_status',
       'bundle' => 'project_log_task',
       'label' => $t('Status'),
     ),
 
-    'project_log_work_task' => array(
+    // Project Log Work
+    array(
+      'field_name' => 'project_log_work_task',
       'bundle' => 'project_log_work',
       'label' => $t('Task'),
       'widget' => array('type' => 'node_reference_autocomplete'),
     ),
 
-    'project_log_work_performed' => array(
+    array(
+      'field_name' => 'project_log_work_performed',
       'bundle' => 'project_log_work',
       'label' => $t('Date Completed'),
     ),
 
-    'project_log_work_hours' => array(
+    array(
+      'field_name' => 'project_log_work_hours',
       'bundle' => 'project_log_work',
       'label' => $t('Hours Spent'),
     ),
 
-    'project_log_work_images' => array(
+    array(
+      'field_name' => 'project_log_work_images',
       'bundle' => 'project_log_work',
       'label' => $t('Gallery Images'),
     ),
