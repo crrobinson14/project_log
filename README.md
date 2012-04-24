@@ -29,28 +29,26 @@ read below for why). To get project_log for your site, do the following instead:
     git clone git://github.com/crrobinson14/project_log.git
     drush en project_log
 
-If you do not have Git installed on your system, you can do this instead:
-
-    cd sites/all/modules
-    wget https://github.com/crrobinson14/project_log/zipball/master -O project_log.zip
-    unzip project_log.zip
-    rm project_log.zip
-    drush en project_log
-
-If you do not have SSH access to the server you are installing the module on,
-just use the https://github.com/crrobinson14/project_log/zipball/master link
-to download the project, and install it via FTP as you would any other module.
+If you do not have Git installed on your system, or you do not have SSH access
+to your server, you can use the "Zip" download link above and install it via
+FTP as you would any other Drupal module.
 
 Configuration
 -------------
+To create a log, follow these steps:
 
-To create a log, create a new node of type Project Log. Then create one Project
-Log Section for each category of work that needs to be completed. A Section is
-a group for tasks. For example, in a Cozy MKIV project, these would be the
-Chapters from the construction manual. (Note that modules such as Node Reference
-Create are very helpful when working with node relationships and can save a lot
-of time here.) Finally, edit each Section and create the tasks that must be
-completed for that Section.
+  1. Create a new node of type Project Log.
+
+  2. Create one Project Log Section for each category of work that needs to be
+  completed. A Section is a group for tasks. For example, in a Cozy MKIV
+  project, these would be the Chapters from the construction manual. (Note that
+  modules such as Node Reference Create are very helpful here.)
+
+  3. Edit each Section and create the tasks that must be completed for it.
+
+  4. As you work on your project, create Work Entries for each section. You
+  may attach photos and notes to these entries, and use controls on the entries
+  to alter the status of the Section (such as to mark it completed).
 
 There are a variety of options for how you may theme/display this data,
 including Views, Panels, Panelizer, Display Suite, standard Drupal template
@@ -58,23 +56,18 @@ theming techniques, etc. Discussing those is beyond the scope of this README,
 but for reference, here is how the author's site (http://www.lucubration.com/)
 works:
 
-  1. Data is entered in a project_log as project_log_sections,
-     project_log_tasks, and project_log_work entries.
+  1. A Latest News view shows a teaser-style rendering of the most recently
+  published work entries, with a thumbnail for each.
 
-  2. Three views provide display facilities for these items:
+  2. A Project Summary view provides a listing of all sections, in order,
+  with summary information for those sections
 
-      a. A Latest News view shows a teaser-style rendering of the most
-         recently posted work entries, with a thumbnail of the first
-         image attached to each.
-
-      b. A Project Summary view provides a listing of all sections, in order,
-         with summary information for those sections
-
-TO BE COMPLETED
+  3. A Project Section view displays the work entries for a section. This is
+  managed with a view to give the administrator control over things like
+  pagination, sorting, and fields displayed.
 
 Why GitHub?
 -----------
-
 You might be wondering why this project is on GitHub, not drupal.org/projects.
 There are two reasons for this. First, I find that GitHub is faster and more
 accessible for projects that are just starting out, or that value community
