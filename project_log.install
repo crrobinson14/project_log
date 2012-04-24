@@ -1,0 +1,259 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Project Log module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function project_log_install() {
+  $t = get_t();
+
+  // Create the required node types
+  foreach (_project_log_installed_types() as $type => $data) {
+    $type = array(
+      'type' => $type,
+      'name' => $data['title'],
+      'description' => $data['description'],
+      'base' => 'node_content',
+      'custom' => TRUE,
+      'modified' => 1,
+      'locked' => 0,
+    );
+
+    $type = node_type_set_defaults($type);
+    node_add_body_field($type);
+    node_type_save($type);
+    variable_set('node_options_' . $type, array('status' => 1));
+  }
+
+  // Turn off displaying the author on Project Log and Project Log Section types.
+  variable_set('node_submitted_project_log', 0);
+  variable_set('node_submitted_project_log_section', 0);
+
+  // To avoid noise from the first install, turn off commenting on tasks and work entries.
+  // The administrator can always override this later.
+  variable_set('comment_project_log_task', 0);
+  variable_set('comment_project_log_work', 0);
+
+  // Create all the fields we are adding to our content types.
+  foreach (_project_log_installed_fields() as $name => $field) {
+    $field['field_name'] = $name;
+    field_create_field($field);
+  }
+
+  // Create all the instances for our fields.
+  foreach (_project_log_installed_instances() as $name => $instance) {
+    $instance['field_name'] = $name;
+    $instance['entity_type'] = 'node';
+    field_create_instance($instance);
+  }
+}
+
+/**
+ * List of types to create
+ */
+function _project_log_installed_types() {
+  $t = get_t();
+
+  return array(
+    'project_log_work' => array(
+      'title' => $t('Project Log Work'),
+      'description' => $t('A <em>Project Log Work Entry</em> is a unit of completed work in a project, similar to a blog entry but with task-related metadata.'),
+    ),
+    'project_log_task' => array(
+      'title' => $t('Project Log Task'),
+      'description' => $t('A <em>Project Log Task</em> is an individual task inside a project.'),
+    ),
+    'project_log_section' => array(
+      'title' => $t('Project Log Section'),
+      'description' => $t('A <em>Project Log Section</em> is a category of work in a Project Log project. Sections are used to group tasks by chapter, category, etc.'),
+    ),
+    'project_log' => array(
+      'title' => $t('Project Log'),
+      'description' => $t('A <em>Project Log</em> is an individual project. A site may store and track multiple projects, each divided into sections, tasks, and work entries.'),
+    ),
+  );
+}
+
+/**
+ * List of fields to create
+ */
+function _project_log_installed_fields() {
+  $t = get_t();
+
+  return array(
+    // Project Logs directly reference their sections so editors can easily do
+    // drag/drop re-ordering when creating them.
+    'project_log_sections' => array(
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+      'type' => 'node_reference',
+      'settings' => array(
+        'referenceable_types' => array('project_log_section'),
+        'default_widget' => 'node_reference_autocomplete',
+      ),
+    ),
+
+    // Project Log Sections directly reference their tasks so editors can easily do
+    // drag/drop re-ordering when creating them.
+    'project_log_tasks' => array(
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+      'type' => 'node_reference',
+      'settings' => array(
+        'referenceable_types' => array('project_log_task'),
+        'default_widget' => 'node_reference_autocomplete',
+      ),
+    ),
+
+    // Project Log Tasks have status flags
+    'project_log_task_status' => array(
+      'cardinality' => 1,
+      'type' => 'list_text',
+      'settings' => array(
+        'allowed_values' => array(
+          'new' => 'Not Started',
+          'active' => 'In Progress',
+          'complete' => 'Completed',
+          'hold' => 'On Hold'
+        ),
+        'default_widget' => 'options_select',
+      ),
+      'default_value' => array(array('value' => 'new')),
+    ),
+
+    // Project Log Work Entries back-reference Project Log Tasks. These work like blog entries,
+    // and are sorted by date/time.
+    'project_log_work_task' => array(
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+      'type' => 'node_reference',
+      'settings' => array(
+        'referenceable_types' => array('project_log_task'),
+        'default_widget' => 'node_reference_autocomplete',
+      ),
+    ),
+
+    // Project Log Work Entries have a date-performed field. The user might be authoring a work
+    // entry at a different time from when the work was performed.
+    'project_log_work_performed' => array(
+      'cardinality' => 1,
+      'type' => 'datestamp',
+      'settings' => array(
+        'default_widget' => 'date_select',
+      ),
+    ),
+
+    // Project Log Work Entries have a time-spent field. The sum of these values yields the total
+    // 'actual' time spent on a task.
+    'project_log_work_hours' => array(
+      'cardinality' => 1,
+      'type' => 'number_float',
+      'settings' => array(
+        'default_widget' => 'number',
+      ),
+    ),
+
+    // Project Log Work Entries may have one or more images attached.
+    'project_log_work_images' => array(
+      'type'       => 'image',
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+    ),
+  );
+}
+
+/**
+ * List of field instances to create
+ */
+function _project_log_installed_instances() {
+  $t = get_t();
+
+  return array(
+    'project_log_sections' => array(
+      'bundle' => 'project_log',
+      'label' => $t('Sections'),
+      'widget' => array('type' => 'node_reference_autocomplete'),
+    ),
+
+    'project_log_tasks' => array(
+      'bundle' => 'project_log_section',
+      'label' => $t('Tasks'),
+      'widget' => array('type' => 'node_reference_autocomplete'),
+    ),
+
+    'project_log_task_status' => array(
+      'bundle' => 'project_log_task',
+      'label' => $t('Status'),
+    ),
+
+    'project_log_work_task' => array(
+      'bundle' => 'project_log_work',
+      'label' => $t('Task'),
+      'widget' => array('type' => 'node_reference_autocomplete'),
+    ),
+
+    'project_log_work_performed' => array(
+      'bundle' => 'project_log_work',
+      'label' => $t('Date Completed'),
+    ),
+
+    'project_log_work_hours' => array(
+      'bundle' => 'project_log_work',
+      'label' => $t('Hours Spent'),
+    ),
+
+    'project_log_work_images' => array(
+      'bundle' => 'project_log_work',
+      'label' => $t('Gallery Images'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function project_log_uninstall() {
+  $delete = array_keys(_project_log_installed_types());
+
+  // Delete field instances
+  foreach (array_keys(_project_log_installed_fields()) as $field) {
+    field_delete_field($field);
+  }
+
+  // Loop over any remaining field instances attached to the node_example
+  // content type (such as the body field) and delete them individually.
+  foreach ($delete as $type) {
+    variable_del('menu_options_' . $type);
+    variable_del('menu_parent_' . $type);
+    variable_del('node_options_' . $type);
+    variable_del('node_preview_' . $type);
+    variable_del('node_submitted_' . $type);
+
+    variable_del('comment_' . $type);
+    variable_del('comment_anonymous_' . $type);
+    variable_del('comment_default_mode_' . $type);
+    variable_del('comment_default_per_page_' . $type);
+    variable_del('comment_form_location_' . $type);
+    variable_del('comment_preview_' . $type);
+    variable_del('comment_subject_field' . $type);
+
+    variable_del('additional_settings__active_tab_' . $type);
+
+    $instances = field_info_instances($node, $type);
+    foreach ($instances as $instance_name => $instance) {
+      field_delete_instance($instance);
+    }
+
+    $result = db_query('SELECT nid FROM {node} n WHERE n.type = :type', array(':type' => $type));
+    $nids = array();
+    foreach ($result as $row) {
+      $nids[] = $row->nid;
+    }
+
+    node_delete_multiple($nids);
+    node_type_delete($type);
+  }
+
+  // Purge all field information
+  field_purge_batch(1000);
+}

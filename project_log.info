@@ -1,0 +1,13 @@
+name = Project Log
+description = Enable tracking for work completed on a project.
+package = Other
+version = 7.x-1.0
+core = 7.x
+
+files[] = project_log.module
+
+stylesheets[all][] = project_log.css
+
+dependencies[] = node_reference
+dependencies[] = date
+dependencies[] = list
